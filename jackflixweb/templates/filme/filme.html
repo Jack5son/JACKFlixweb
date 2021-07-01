@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>JACKFlix</title>
+    <link href="{% static 'css/crud.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/menu.css' %}" rel="stylesheet" type="text/css">
+</head>
+<body>
+    {% include "../menu.html" %}
+<main>
+
+    <div class="container">
+        <div>
+            {% if filme_records %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Filme</th>
+                        <th>Gênero</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                   {% for filme in filme_records %}
+                       <tr>
+                        <td>{{ filme.nome }}</td>
+                        <td>{{ filme.idGenero }}</td>
+                        <td>
+                            <button class="list-button editar-button" onclick="updateItem({{filme.id}})">Alterar</button>
+                            <button class="list-button apagar-button" onclick="deleteItem({{filme.id}})">Excluir</button>
+                        </td>
+                       </tr>
+                   {% endfor %}
+                </tbody>
+            </table>
+
+            {% else %}
+                <p>Nenhum dado cadastrado</p>
+            {% endif %}
+        </div>
+        <div class="divForm">
+            <form onsubmit="/filme" id="form-filme" method="post">
+                {{ form }}
+                {% csrf_token %}
+                <input type="submit" id="submit-button" value="Enviar"/>
+            </form>
+        </div>
+    </div>
+</main>
+<script>
+    function deleteItem(id){
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const request = new Request(
+            "/filme/delete/"+id,
+            {headers:{'X-CSRFToken':csrftoken}}
+            )
+            fetch(request,{
+                method:'DELETE',
+                mode: 'same-origin'
+            }).then(
+                function(response) {
+                    if (response.status === 500){
+                        alert("Não foi possível excluir.")
+                    }
+                    else {
+                        location.replace("/filme")
+                    }
+                }
+            )
+
+    }
+    function updateItem(id){
+        location.replace('/filme/update/'+id);
+
+    }
+</script>
+</body>
+</html>
